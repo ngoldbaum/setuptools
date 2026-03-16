@@ -307,8 +307,11 @@ class bdist_wheel(Command):
         impl = impl_name + impl_ver
         # We don't work on CPython 3.1, 3.0.
         if self.py_limited_api and impl.startswith("cp3"):
+            # no need to check that we have a new enough interpreter,
+            # the check in bdist_wheel._validate_py_limited_api will
+            # raise ValueError on Python 3.14 and older
             if sysconfig.get_config_var("Py_GIL_DISABLED"):
-                abi_tag = "abi3.abi3t"
+                abi_tag = "abi3t"
             else:
                 abi_tag = "abi3"
         else:
@@ -366,10 +369,9 @@ class bdist_wheel(Command):
             supported_tags = [
                 (t.interpreter, t.abi, plat_name) for t in tags.sys_tags()
             ]
-            assert any(
-                (t.interpreter, t.abi, plat_name) in supported_tags
-                for t in tags.parse_tag("-".join(tag))
-            ), f"would build wheel with unsupported tag {tag}"
+            assert tag in supported_tags, (
+                f"would build wheel with unsupported tag {tag}"
+            )
         return tag
 
     def run(self):
