@@ -63,20 +63,13 @@ jobs:
           python: "3.10"
           distutils: stdlib
     runs-on: ${{ matrix.platform }}
-    continue-on-error: ${{ matrix.python == '3.14' || matrix.python == 'pypy3.10' }}
+    continue-on-error: ${{ matrix.python == 'pypy3.10' }}
     # XXX: pypy seems to be flaky with unrelated tests in #6345
     env:
       SETUPTOOLS_USE_DISTUTILS: ${{ matrix.distutils || 'local' }}
     timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
-      - name: Install build dependencies
-        # Install dependencies for building packages on pre-release Pythons
-        # jaraco/skeleton#161
-        if: matrix.python == '3.14' && matrix.platform == 'ubuntu-latest'
-        run: |
-          sudo apt update
-          sudo apt install -y libxml2-dev libxslt-dev
       - name: Setup Python
         id: python-install
         uses: actions/setup-python@v5
