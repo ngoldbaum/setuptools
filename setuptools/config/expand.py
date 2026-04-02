@@ -122,9 +122,9 @@ def read_files(
     from more_itertools import always_iterable
 
     root_dir = os.path.abspath(root_dir or os.getcwd())
-    _filepaths = (os.path.join(root_dir, path) for path in
-                  # work around more_itertools/more_itertools#1143
-                  cast('Iterable[StrPath]', always_iterable(filepaths)))
+    # work around more_itertools/more_itertools#1143
+    _filepaths = cast('Iterable[StrPath]', always_iterable(filepaths))
+    _filepaths = (os.path.join(root_dir, path) for path in _filepaths)
     return '\n'.join(
         _read_file(path)
         for path in _filter_existing_files(_filepaths)
