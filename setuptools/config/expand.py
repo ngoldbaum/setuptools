@@ -32,7 +32,7 @@ from importlib.machinery import ModuleSpec, all_suffixes
 from itertools import chain
 from pathlib import Path
 from types import ModuleType, TracebackType
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
 
 from .. import _static
 from .._path import StrPath, same_path as _same_path
@@ -122,7 +122,9 @@ def read_files(
     from more_itertools import always_iterable
 
     root_dir = os.path.abspath(root_dir or os.getcwd())
-    _filepaths = (os.path.join(root_dir, path) for path in always_iterable(filepaths))
+    _filepaths = (os.path.join(root_dir, path) for path in
+                  # work around more_itertools/more_itertools#1143
+                  cast('Iterable[StrPath]', always_iterable(filepaths)))
     return '\n'.join(
         _read_file(path)
         for path in _filter_existing_files(_filepaths)
