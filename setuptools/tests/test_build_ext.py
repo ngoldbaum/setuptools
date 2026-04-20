@@ -20,10 +20,8 @@ import distutils.command.build_ext as orig
 from distutils.sysconfig import get_config_var
 
 IS_PYPY = '__pypy__' in sys.builtin_module_names
-# from a Mac running Python 3.14
-ABI3_EXT_SUFFIXES = ['cpython-314-darwin.so', 'abi3.so', 'so']
-# from a Mac running Python 3.15t
-ABI3T_EXT_SUFFIXES = ['.cpython-315t-darwin.so', '.abi3t.so', '.so']
+ABI3_EXT_SUFFIXES = (('cpython-314-darwin.so', 'abi3.so', 'so'), ('cpython-314-linux.so', 'abi3.so', 'so'))
+ABI3T_EXT_SUFFIXES = (('.cpython-315t-darwin.so', '.abi3t.so', '.so'), ('.cpython-315t-linux.so', '.abi3t.so', '.so'))
 
 
 class TestBuildExt:
@@ -69,7 +67,8 @@ class TestBuildExt:
         Test that extension filename is correct if  'py_limited_abi' is
         truthy on Extension()
         """
-        monkeypatch.setattr(build_ext_mod, "EXTENSION_SUFFIXES", suffixes)
+        for suffix in suffixes:
+            monkeypatch.setattr(build_ext_mod, "EXTENSION_SUFFIXES", suffix)
         self.check_stable_abi(extension_name)
 
     def test_ext_suffix_override(self):
